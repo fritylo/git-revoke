@@ -16,7 +16,12 @@ function execWithLog(command) {
 
     const res = exec(command);
     
-    const output = res.split('\n').filter(line => line.trim()).map((line) => '  < ' + line).join('\n');
+    const output = res
+        .split('\n')
+        .filter(line => line.trim())
+        .map((line) => '  < ' + line)
+        .join('\n');
+        
     if (output) {
         console.log(output);
     }
