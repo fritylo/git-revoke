@@ -1,3 +1,6 @@
+import { exec } from "./exec.mjs";
+import { question } from "./question.mjs";
+
 export async function checkMergeChanges() {
     const mergeChanges = (await exec('git diff --name-only --diff-filter=U --relative'))
         .split('\n')
