@@ -4,9 +4,12 @@ import { help } from './help.mjs';
 import { exec, execWithLog } from './exec.mjs';
 import { question } from './question.mjs';
 import { whileMergeChanges } from './merge-changes.mjs';
+import { getArg } from './argv.mjs';
 
 async function main() {
     const argv = process.argv.slice(2);
+
+    const reviveAt = getArg(argv, /^--revive-at=/);
 
     if (argv.length === 0) {
         console.log('No hash provided. Exit...');
@@ -19,7 +22,7 @@ async function main() {
         return;
     }
 
-    const [mergeHash] = argv;
+    const mergeHash = getArg(argv, /^(?!--)/);
     const mergeMessage = await exec(`git log -n 1 --pretty=format:%s ${mergeHash}`);
     
     const isMergeCommit = /^Merge branch '/.test(mergeMessage);
@@ -69,6 +72,11 @@ async function main() {
     });
 
     await execWithLog(`git commit --allow-empty -m "Revoke \\"${mergeMessage}\\""`);
+    
+    if (reviveAt) {
+        await execWithLog(`git checkout ${reviveAt}`);
+        await execWithLog(`git pull`);
+    }
 
     await execWithLog(`git checkout -b ${branchName}`);
 
